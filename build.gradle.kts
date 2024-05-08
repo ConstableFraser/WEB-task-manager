@@ -23,7 +23,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-validation")
+    runtimeOnly("com.h2database:h2:2.2.224")
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.2.4")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.2.5")
     implementation("org.springframework.boot:spring-boot-starter:3.2.4")
     implementation("org.springframework.boot:spring-boot-starter-web:3.2.4")

@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost/task_manager?user=task_manager&password=postgres
-    username: task_manager
-    password: postgres
+    url: "jdbc:h2:mem:task_manager"
+    username: user
+    password: user
