@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: postgres://task_manager:RFm6g9ws1n5DDjwMH1kSKBq8BMAIKHwW@dpg-cotrgu21hbls73c5062g-a/task_manager_pl6v
+    url: postgres://task_manager:RFm6g9ws1n5DDjwMH1kSKBq8BMAIKHwW@dpg-cotrgu21hbls73c5062g-a.ohio-postgres.render.com/task_manager_pl6v
     username: task_manager
     password: RFm6g9ws1n5DDjwMH1kSKBq8BMAIKHwW
