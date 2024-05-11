@@ -1,4 +1,4 @@
-app/.gradle
+.gradle
 build/
 jte-classes/
 !gradle/wrapper/gradle-wrapper.jar
@@ -7,7 +7,6 @@ jte-classes/
 
 ### IntelliJ IDEA ###
 .idea/
-app/.idea/
 *.iws
 *.iml
 *.ipr

@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.ResponseEntity;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -38,11 +40,15 @@ public class UsersController {
 
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDTO> index() {
+    public ResponseEntity<List<UserDTO>> index() {
         var users = userRepository.findAll();
-        return users.stream()
+        var result = users.stream()
                 .map(userMapper::map)
                 .toList();
+
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(users.size()))
+                .body(result);
     }
 
     @PostMapping("/users")
@@ -55,6 +61,7 @@ public class UsersController {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setLastName(userCreateDTO.getLastName());
         user.setFirstName(userCreateDTO.getFirstName());
+        user.setCreatedAt(LocalDate.now());
         userRepository.save(user);
 
         return userMapper.map(user);
