@@ -7,10 +7,9 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class UserDTO {
+public class StatusDTO {
     private Long id;
-    private String email;
-    private String firstName;
-    private String lastName;
+    private String name;
+    private String slug;
     private Date createdAt;
 }

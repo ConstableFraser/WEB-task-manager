@@ -2,8 +2,8 @@ package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.exception.ResourceNotFoundException;
-import hexlet.code.model.User;
-import hexlet.code.repository.UserRepository;
+import hexlet.code.model.Status;
+import hexlet.code.repository.StatusRepository;
 import hexlet.code.util.ModelGenerator;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,104 +23,122 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-//
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UsersControllerTest {
+public class StatusesControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ModelGenerator modelGenerator;
+    private StatusRepository statusRepository;
 
     @Autowired
     private ObjectMapper om;
 
     private static SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
 
-    private User testUser;
+    private Status testStatus;
+
+    @Autowired
+    private ModelGenerator modelGenerator;
 
     @BeforeEach
     public void setUp() {
         token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
-        testUser = Instancio.of(modelGenerator.getUserModel())
+        testStatus = Instancio.of(modelGenerator.getStatusModel())
                 .create();
-        testUser.setTasks(new ArrayList<>());
-
-        userRepository.save(testUser);
+        testStatus.setCreatedAt(LocalDate.now());
+        testStatus.setTasks(new ArrayList<>());
+        statusRepository.save(testStatus);
     }
 
     @Test
     public void testShow() throws Exception {
-        var request = get("/api/users/{id}", testUser.getId()).with(jwt());
+        var request = get("/api/task_statuses/{id}", testStatus.getId()).with(jwt());
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
         var body = result.getResponse().getContentAsString();
 
         assertThatJson(body).and(
-                v -> v.node("email").isEqualTo(testUser.getEmail()),
-                v -> v.node("firstName").isEqualTo(testUser.getFirstName()),
-                v -> v.node("lastName").isEqualTo(testUser.getLastName())
+                v -> v.node("name").isEqualTo(testStatus.getName()),
+                v -> v.node("slug").isEqualTo(testStatus.getSlug())
         );
     }
 
     @Test
     public void testIndex() throws Exception {
-        var result = mockMvc.perform(get("/api/users").with(jwt()))
+        var request = get("/api/task_statuses");
+        var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
-
         var body = result.getResponse().getContentAsString();
+
         assertThatJson(body).isArray();
     }
 
     @Test
     void testCreate() throws Exception {
-        var data = Instancio.of(modelGenerator.getUserModel())
+        var data = Instancio.of(modelGenerator.getStatusModel())
                 .create();
 
-        var request = post("/api/users")
+        var request = post("/api/task_statuses")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
         mockMvc.perform(request)
                 .andExpect(status().isCreated());
 
-        var user = userRepository.findByEmail(data.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        var createdStatus = statusRepository.findBySlugIgnoreCase(data.getSlug())
+                .orElseThrow(() -> new ResourceNotFoundException("Status not found"));
 
-        assertNotNull(user);
-        assertThat(user.getFirstName()).isEqualTo(data.getFirstName());
-        assertThat(user.getLastName()).isEqualTo(data.getLastName());
+        assertNotNull(createdStatus);
+        assertThat(createdStatus.getName()).isEqualTo(data.getName());
+        assertThat(createdStatus.getSlug()).isEqualTo(data.getSlug());
     }
 
     @Test
-    public void testUpdate() throws Exception {
-
+    void testUpdate() throws Exception {
         var data = new HashMap<>();
-        data.put("firstName", "noname.user");
+        data.put("name", "new_status_name");
 
-        var request = put("/api/users/" + testUser.getId())
+        var request = put("/api/task_statuses/" + testStatus.getId())
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
-
         mockMvc.perform(request)
                 .andExpect(status().isOk());
 
-        var user = userRepository.findById(testUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        assertThat(user.getFirstName()).isEqualTo(data.get("firstName"));
-        assertThat(user.getLastName()).isEqualTo(testUser.getLastName());
+        var updatedStatus = statusRepository.findById(testStatus.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Status not found"));
+
+        assertNotNull(updatedStatus);
+        assertThat(updatedStatus.getName()).isEqualTo(data.get("name"));
+        assertThat(updatedStatus.getSlug()).isEqualTo(testStatus.getSlug());
+    }
+
+    @Test
+    void testDelete() throws Exception {
+        var testDeleteStatus = Instancio.of(modelGenerator.getStatusModel())
+                .create();
+        testDeleteStatus.setTasks(new ArrayList<>());
+        statusRepository.save(testDeleteStatus);
+
+        var id = testDeleteStatus.getId();
+
+        var request = delete("/api/task_statuses/" + id)
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON);
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent());
+
+        assertThat(statusRepository.findById(id)).isNotPresent();
     }
 }

@@ -1,5 +1,7 @@
 package hexlet.code.util;
 
+import hexlet.code.model.Status;
+import hexlet.code.model.Task;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.instancio.Select;
@@ -15,6 +17,8 @@ import net.datafaker.Faker;
 @Component
 public class ModelGenerator {
     private Model<User> userModel;
+    private Model<Status> statusModel;
+    private Model<Task> taskModel;
 
     @Autowired
     private Faker faker;
@@ -24,8 +28,22 @@ public class ModelGenerator {
         userModel = Instancio.of(User.class)
                 .ignore(Select.field(User::getId))
                 .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
-                .supply(Select.field(User::getFirstName), () -> faker.internet().username())
-                .supply(Select.field(User::getLastName), () -> faker.internet().username())
+                .supply(Select.field(User::getFirstName), () -> faker.name().name().split(" ")[0])
+                .supply(Select.field(User::getLastName), () -> faker.name().name().split(" ")[1])
+                .toModel();
+
+        statusModel = Instancio.of(Status.class)
+                .ignore(Select.field(Status::getId))
+                .supply(Select.field(Status::getName), () -> faker.lorem().
+                        maxLengthSentence(faker.random().nextInt(2, 12)))
+                .supply(Select.field(Status::getSlug), () -> faker.lorem().
+                        maxLengthSentence(faker.random().nextInt(2, 12)))
+                .toModel();
+
+        taskModel = Instancio.of(Task.class)
+                .ignore(Select.field(Task::getId))
+                .supply(Select.field(Task::getName), () -> faker.lorem().word())
+                .supply(Select.field(Task::getDescription), () -> faker.gameOfThrones().quote())
                 .toModel();
     }
 }

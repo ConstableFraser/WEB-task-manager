@@ -88,6 +88,8 @@ public class UsersController {
     @DeleteMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable Long id) {
+        userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
         userRepository.deleteById(id);
     }
 }
