@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,7 +154,7 @@ public class TasksControllerTest {
                 .andExpect(status().isOk());
 
         var task = taskRepository.findById(taskDTO.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));;
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         assertThat(task).isNotNull();
         assertThat(task.getName()).isEqualTo(taskDTO.getTitle());

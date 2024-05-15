@@ -32,9 +32,6 @@ public class TasksController {
     private TaskRepository taskRepository;
 
     @Autowired
-    private StatusRepository statusRepository;
-
-    @Autowired
     private TaskMapper taskMapper;
 
     @GetMapping("/tasks")
