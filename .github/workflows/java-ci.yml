@@ -18,6 +18,7 @@ jobs:
         with:
           gradle-version: 8.7
           arguments: build
+          build-root-directory: ./
       - name: gradlew Build, Checkstyle and Test commands
         run: |
           ./gradlew checkstyleMain
