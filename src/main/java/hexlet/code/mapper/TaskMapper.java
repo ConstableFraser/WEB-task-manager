@@ -54,12 +54,6 @@ public abstract class TaskMapper {
     @Mapping(target = "labels", source = "taskLabelIds")
     public abstract void update(TaskUpdateDTO taskUpdateDTO, @MappingTarget Task task);
 
-    public String mapStatusToName(TaskStatus taskStatus) {
-        return statusRepository.findBySlug(taskStatus.getSlug())
-                .orElseThrow(() -> new ResourceNotFoundException("Status hot found"))
-                .getName();
-    }
-
     public TaskStatus mapNameToStatus(String slug) {
         return statusRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Status hot found"));
