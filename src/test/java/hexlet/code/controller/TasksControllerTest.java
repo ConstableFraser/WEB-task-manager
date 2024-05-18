@@ -3,7 +3,7 @@ package hexlet.code.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskMapper;
-import hexlet.code.model.Status;
+import hexlet.code.model.TaskStatus;
 import hexlet.code.model.Task;
 import hexlet.code.model.User;
 import hexlet.code.repository.StatusRepository;
@@ -16,16 +16,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.http.MediaType;
 
 import java.util.ArrayList;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -59,7 +60,7 @@ public class TasksControllerTest {
 
     private Task testTask;
     private User anotherUser;
-    private Status testStatus;
+    private TaskStatus testStatus;
 
     private static SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
 
@@ -81,7 +82,7 @@ public class TasksControllerTest {
 
         testTask = Instancio.of(modelGenerator.getTaskModel()).create();
         testTask.setAssignee(user);
-        testTask.setStatus(testStatus);
+        testTask.setTaskStatus(testStatus);
     }
 
     @Test
@@ -96,7 +97,7 @@ public class TasksControllerTest {
         assertThatJson(body).and(
                 v -> v.node("title").isEqualTo(testTask.getName()),
                 v -> v.node("content").isEqualTo(testTask.getDescription()),
-                v -> v.node("assigneeId").isEqualTo(testTask.getAssignee().getId())
+                v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId())
         );
     }
 
@@ -117,8 +118,9 @@ public class TasksControllerTest {
     public void testCreate() throws Exception {
         var data = Instancio.of(modelGenerator.getTaskModel())
                 .create();
+        data.setTaskStatus(testStatus);
+
         var taskDTO = mapper.map(data);
-        taskDTO.setStatusId(testStatus.getId());
         taskDTO.setAssigneeId(anotherUser.getId());
 
         var request = post("/api/tasks")
@@ -142,7 +144,7 @@ public class TasksControllerTest {
         var data = Instancio.of(modelGenerator.getTaskModel())
                 .create();
         data.setName("new_title");
-        data.setStatus(testStatus);
+        data.setTaskStatus(testStatus);
         data.setAssignee(anotherUser);
         var taskDTO = mapper.map(taskRepository.save(data));
 

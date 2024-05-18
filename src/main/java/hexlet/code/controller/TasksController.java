@@ -5,7 +5,6 @@ import hexlet.code.dto.TaskDTO;
 import hexlet.code.dto.TaskUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskMapper;
-import hexlet.code.repository.StatusRepository;
 import hexlet.code.repository.TaskRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +66,7 @@ public class TasksController {
 
     @PutMapping("/tasks/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void update(@RequestBody TaskUpdateDTO taskUpdateDTO, @PathVariable Long id) { //@Valid
+    public void update(@Valid @RequestBody TaskUpdateDTO taskUpdateDTO, @PathVariable Long id) {
         var task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
         taskMapper.update(taskUpdateDTO, task);

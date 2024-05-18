@@ -1,6 +1,8 @@
 package hexlet.code.component;
 
-import hexlet.code.model.Status;
+import hexlet.code.model.Label;
+import hexlet.code.model.TaskStatus;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -24,6 +26,9 @@ public class DataInitializer implements ApplicationRunner {
     @Autowired
     private StatusRepository statusRepository;
 
+    @Autowired
+    private LabelRepository labelRepository;
+
     @Override
     public void run(ApplicationArguments args) {
         // Create default user
@@ -36,9 +41,18 @@ public class DataInitializer implements ApplicationRunner {
         // Create default statuses
         var statuses = List.of("draft", "to_review", "to_be_fixed", "to_publish", "published");
         for (String s : statuses) {
-            Status status = new Status(s, s);
-            status.setCreatedAt(LocalDate.now());
-            statusRepository.save(status);
+            var taskStatus = new TaskStatus(s, s);
+            taskStatus.setCreatedAt(LocalDate.now());
+            statusRepository.save(taskStatus);
+        }
+
+        //Create default labels
+        var labelNames = List.of("bug", "feature");
+        for (String name : labelNames) {
+            var label = new Label();
+            label.setName(name);
+            label.setCreatedAt(LocalDate.now());
+            labelRepository.save(label);
         }
     }
 }

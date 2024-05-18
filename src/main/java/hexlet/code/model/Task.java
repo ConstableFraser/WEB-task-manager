@@ -1,6 +1,10 @@
 package hexlet.code.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
@@ -20,6 +24,8 @@ import lombok.NonNull;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -47,14 +53,20 @@ public class Task {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     @JoinColumn(name = "status_id")
-    private Status status;
+    private TaskStatus taskStatus;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_id")
     private User assignee;
+
+    @ManyToMany
+    @JoinTable(name = "tasks_labels",
+            joinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "label_id", referencedColumnName = "id"))
+    private List<Label> labels = new ArrayList<>();
 
     @CreatedDate
     private LocalDate createdAt;

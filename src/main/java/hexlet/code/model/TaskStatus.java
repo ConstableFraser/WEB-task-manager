@@ -1,6 +1,5 @@
 package hexlet.code.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -37,7 +36,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 @Table(name = "statuses")
-public class Status {
+public class TaskStatus {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @ToString.Include
@@ -64,6 +63,6 @@ public class Status {
     @CreatedDate
     private LocalDate createdAt;
 
-    @OneToMany(mappedBy = "status", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "taskStatus") //, cascade = CascadeType.ALL, orphanRemoval = true
     private List<Task> tasks = new ArrayList<>();
 }

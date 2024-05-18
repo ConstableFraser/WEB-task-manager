@@ -8,6 +8,7 @@
 plugins {
     application
     id("checkstyle")
+    id("jacoco")
     id("io.freefair.lombok") version "8.6"
     id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
@@ -22,16 +23,26 @@ repositories {
     mavenCentral()
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+}
+
 dependencies {
+    // swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+
     // database
     runtimeOnly("com.h2database:h2:2.2.224")
+
+    // jpa & validation
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.2.4")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.2.5")
+
     // mapping
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
-    // entity & validation
-    implementation("org.springframework.boot:spring-boot-starter-validation:3.2.4")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.2.5")
+
     // spring boot tools
     implementation("org.springframework.boot:spring-boot-starter:3.2.4")
     implementation("org.springframework.boot:spring-boot-starter-web:3.2.4")
@@ -42,11 +53,18 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.2.5")
     testImplementation("org.springframework.security:spring-security-test:6.2.4")
     // for tests
-    implementation("org.instancio:instancio-junit:3.3.1")
-    testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
-    implementation("net.datafaker:datafaker:2.0.2")
+    implementation("org.instancio:instancio-junit:4.6.0")
+    testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.7")
+    implementation("net.datafaker:datafaker:2.2.2")
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.withType<JacocoReport> {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
