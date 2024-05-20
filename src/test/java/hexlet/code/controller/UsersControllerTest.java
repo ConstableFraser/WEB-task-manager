@@ -6,12 +6,14 @@ import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.util.ModelGenerator;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -47,6 +49,7 @@ public class UsersControllerTest {
     private static SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
 
     private User testUser;
+    private User testUserForUpdateDelete;
 
     @BeforeEach
     public void setUp() {
@@ -54,8 +57,18 @@ public class UsersControllerTest {
         testUser = Instancio.of(modelGenerator.getUserModel())
                 .create();
         testUser.setTasks(new ArrayList<>());
-
         userRepository.save(testUser);
+
+        testUserForUpdateDelete = new User();
+        testUserForUpdateDelete.setFirstName("mail@mail.com");
+        testUserForUpdateDelete.setEmail("mail@mail.com");
+        testUserForUpdateDelete.setPasswordDigest("qwerty");
+        userRepository.save(testUserForUpdateDelete);
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        userRepository.delete(testUserForUpdateDelete);
     }
 
     @Test
@@ -104,33 +117,52 @@ public class UsersControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "mail@mail.com", password = "qwerty", roles = "USER")
     public void testUpdate() throws Exception {
-
         var data = new HashMap<>();
         data.put("firstName", "noname.user");
 
-        var request = put("/api/users/" + testUser.getId())
-                .with(token)
+        var request = put("/api/users/" + testUserForUpdateDelete.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
 
-        var user = userRepository.findById(testUser.getId())
+        var user = userRepository.findById(testUserForUpdateDelete.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         assertThat(user.getFirstName()).isEqualTo(data.get("firstName"));
-        assertThat(user.getLastName()).isEqualTo(testUser.getLastName());
+        assertThat(user.getLastName()).isEqualTo(testUserForUpdateDelete.getLastName());
     }
 
     @Test
+    @WithMockUser(username = "mail@mail.com", password = "qwerty", roles = "USER")
     public void testDelete() throws Exception {
-        var request = delete("/api/users/" + testUser.getId())
-                .with(token)
+        var id = testUserForUpdateDelete.getId();
+        var request = delete("/api/users/" + testUserForUpdateDelete.getId())
                 .contentType(MediaType.APPLICATION_JSON);
+
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
 
-        assertThat(userRepository.findById(testUser.getId())).isNotPresent();
+        assertThat(userRepository.findById(id)).isNotPresent();
+    }
+
+    @Test
+    public void testIndexWithoutAuth() throws Exception {
+        userRepository.save(testUser);
+
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
+    public void testShowWithoutAuth() throws Exception {
+        userRepository.save(testUser);
+        var request = get("/api/users/{id}", testUser.getId());
+
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized());
     }
 }

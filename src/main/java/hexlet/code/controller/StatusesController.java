@@ -1,6 +1,6 @@
 package hexlet.code.controller;
 
-import hexlet.code.dto.StatusUpdateDTO;
+import hexlet.code.dto.status.StatusUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +19,8 @@ import org.springframework.http.HttpStatus;
 import java.time.LocalDate;
 import java.util.List;
 
-import hexlet.code.dto.StatusDTO;
-import hexlet.code.dto.StatusCreateDTO;
+import hexlet.code.dto.status.StatusDTO;
+import hexlet.code.dto.status.StatusCreateDTO;
 import hexlet.code.mapper.StatusMapper;
 import hexlet.code.repository.StatusRepository;
 

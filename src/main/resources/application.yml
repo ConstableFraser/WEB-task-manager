@@ -9,5 +9,5 @@ rsa:
   public-key: classpath:certs/public.pem
 
 sentry:
-  dsn: https://0e26098c5d8c72031b87410e24a08531@o4507290482311168.ingest.de.sentry.io/4507290484408400
+  dsn: https://284a20274a14ed0b82b51acf4a46217a@o4507290482311168.ingest.de.sentry.io/4507290746552400
   traces-sample-rate: 1.0

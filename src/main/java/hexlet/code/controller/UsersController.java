@@ -1,15 +1,15 @@
 package hexlet.code.controller;
 
-import hexlet.code.dto.UserCreateDTO;
-import hexlet.code.dto.UserUpdateDTO;
+import hexlet.code.dto.user.UserCreateDTO;
+import hexlet.code.dto.user.UserUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.repository.UserRepository;
-import hexlet.code.dto.UserDTO;
-import hexlet.code.service.CustomUserDetailsService;
+import hexlet.code.dto.user.UserDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
 
-
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -34,9 +32,6 @@ public class UsersController {
 
     @Autowired
     private UserMapper userMapper;
-
-    @Autowired
-    private CustomUserDetailsService userService;
 
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
@@ -54,16 +49,8 @@ public class UsersController {
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO create(@Valid @RequestBody UserCreateDTO userCreateDTO) {
-
-        userService.createUser(userMapper.map(userCreateDTO));
-
-        var user = userRepository.findByEmail(userCreateDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        user.setLastName(userCreateDTO.getLastName());
-        user.setFirstName(userCreateDTO.getFirstName());
-        user.setCreatedAt(LocalDate.now());
+        var user = userMapper.map(userCreateDTO);
         userRepository.save(user);
-
         return userMapper.map(user);
     }
 
@@ -77,6 +64,7 @@ public class UsersController {
 
     @PutMapping("/users/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@userUtils.isCurrentUser(#id)")
     public UserDTO update(@RequestBody UserUpdateDTO userData, @PathVariable Long id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
@@ -87,6 +75,7 @@ public class UsersController {
 
     @DeleteMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@userUtils.isCurrentUser(#id)")
     public void destroy(@PathVariable Long id) {
         userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));

@@ -7,9 +7,9 @@ import org.mapstruct.ReportingPolicy;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mapper;
 
-import hexlet.code.dto.StatusCreateDTO;
-import hexlet.code.dto.StatusUpdateDTO;
-import hexlet.code.dto.StatusDTO;
+import hexlet.code.dto.status.StatusCreateDTO;
+import hexlet.code.dto.status.StatusUpdateDTO;
+import hexlet.code.dto.status.StatusDTO;
 
 @Mapper(
         uses = {JsonNullableMapper.class, ReferenceMapper.class},

@@ -25,6 +25,12 @@ public class UserUtils {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
+    public boolean isCurrentUser(long userId) {
+        var userEmail = userRepository.findById(userId).orElseThrow().getEmail();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        return userEmail.equals(authentication.getName());
+    }
+
     public User getTestUser() {
         return userRepository.findByEmail("hexlet@example.com")
                 .orElseThrow(() -> new RuntimeException("User doesn't exist"));
