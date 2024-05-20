@@ -46,6 +46,7 @@ public class Task {
     @NotNull
     @Size(min = 1)
     @ToString.Include
+    @EqualsAndHashCode.Include
     private String name;
 
     private int index;
