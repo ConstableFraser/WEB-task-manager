@@ -188,11 +188,11 @@ public class TasksControllerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"?titleCont=much is the,"
-            + ABSOLUTE_PATH + "checkTitle.json,"
-            + "noexist@email.com,"
-            + "status,"
-            + "1",
+    @CsvSource({"?titleCont=much is the,"        // query params for check
+            + ABSOLUTE_PATH + "checkTitle.json," // expecting json
+            + "noexist@email.com,"               // assignee
+            + "status,"                          // status
+            + "1",                               // label
             "?assigneeId=7,"
             + ABSOLUTE_PATH + "checkAssignee.json,"
             + "testMail@wegw.com,"
@@ -213,20 +213,27 @@ public class TasksControllerTest {
                                 String assignee,
                                 String statusSlug,
                                 String labelId) throws Exception {
-        var statusTest = new TaskStatus("status", "status");
-        statusRepository.save(statusTest);
 
+        var statusTest = new TaskStatus("status", "status");
         var userTest = new User();
+        var labelTest = new Label();
+        var taskExpected = new Task();
+
+        // TaskStatus initializing
+        statusRepository.save(statusTest);
+        // User initializing
         userTest.setEmail("testMail@wegw.com");
         userTest.setFirstName("userTest");
         userTest.setPasswordDigest("qwerty");
         userRepository.save(userTest);
-
-        var taskExpected = new Task();
+        // Label initializing
+        labelTest.setName("label_test");
+        labelRepository.save(labelTest);
+        // Task initializing
         taskExpected.setName("How much is the fish?");
         taskExpected.setTaskStatus(statusRepository.findBySlug(statusSlug).orElse(testStatus));
         taskExpected.setAssignee(userRepository.findByEmail(assignee).orElse(null));
-        Label label = labelRepository.findById(Long.valueOf(labelId)).orElse(new Label());
+        Label label = labelRepository.findById(Long.valueOf(labelId)).orElse(labelTest);
         taskExpected.setLabels(List.of(label));
         taskRepository.save(taskExpected);
 
@@ -244,5 +251,6 @@ public class TasksControllerTest {
         taskRepository.delete(taskExpected);
         statusRepository.delete(statusTest);
         userRepository.delete(userTest);
+        labelRepository.delete(labelTest);
     }
 }
