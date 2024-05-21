@@ -15,7 +15,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.4"
 }
 
-group = "io.hexlet"
+group = "hexlet.code"
 version = "0.0.1-SNAPSHOT"
 
 application { mainClass.set("hexlet.code.AppApplication") }
