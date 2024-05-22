@@ -13,14 +13,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.NonNull;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -34,22 +29,14 @@ import java.util.List;
 @Setter
 @NonNull
 @EntityListeners(AuditingEntityListener.class)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(onlyExplicitlyIncluded = true)
 @Table(name = "tasks")
 public class Task {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @ToString.Include
-    @EqualsAndHashCode.Include
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotEmpty
-    @NotBlank
-    @NotNull
     @Size(min = 1)
-    @ToString.Include
-    @EqualsAndHashCode.Include
     private String name;
 
     private int index;
@@ -58,7 +45,6 @@ public class Task {
     private String description;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @NotNull
     @JoinColumn(name = "status_id")
     private TaskStatus taskStatus;
 
