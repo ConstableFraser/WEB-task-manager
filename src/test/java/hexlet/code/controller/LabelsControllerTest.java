@@ -15,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -52,8 +51,8 @@ public class LabelsControllerTest {
         token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
         testLabel = Instancio.of(modelGenerator.getLabelModel())
                 .create();
-        testLabel.setCreatedAt(LocalDate.now());
         testLabel.setTasks(new ArrayList<>());
+
         labelRepository.save(testLabel);
     }
 

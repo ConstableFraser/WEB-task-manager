@@ -2,6 +2,7 @@ package hexlet.code.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -22,6 +23,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.NonNull;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.List;
 @Getter
 @Setter
 @NonNull
+@EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 @Table(name = "tasks")

@@ -55,7 +55,6 @@ dependencies {
     implementation("net.datafaker:datafaker:2.2.2")
     // sentry
     implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.9.0")
-
 }
 
 tasks.withType<Test> {

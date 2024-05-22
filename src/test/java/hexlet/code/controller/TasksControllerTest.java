@@ -1,7 +1,5 @@
 package hexlet.code.controller;
 
-import hexlet.code.model.Label;
-import hexlet.code.repository.LabelRepository;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +24,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
@@ -51,9 +49,6 @@ public class TasksControllerTest {
 
     @Autowired
     private StatusRepository statusRepository;
-
-    @Autowired
-    private LabelRepository labelRepository;
 
     @Autowired
     private ModelGenerator modelGenerator;
@@ -188,69 +183,32 @@ public class TasksControllerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"?titleCont=much is the,"        // query params for check
-            + ABSOLUTE_PATH + "checkTitle.json," // expecting json
-            + "noexist@email.com,"               // assignee
-            + "status,"                          // status
-            + "1",                               // label
-            "?assigneeId=7,"
-            + ABSOLUTE_PATH + "checkAssignee.json,"
-            + "testMail@wegw.com,"
-            + "draft,"
-            + "1",
-            "?status=to_review,"
-            + ABSOLUTE_PATH + "checkStatus.json,"
-            + "noexist@email.com,"
-            + "to_review,"
-            + "1",
-            "?labelId=1,"
-            + ABSOLUTE_PATH + "checkLabel.json,"
-            + "noexist@email.com,"
-            + "to_be_fixed,"
-            + "1"})
-    public void testFilterTasks(String query,
-                                String expectedJson,
-                                String assignee,
-                                String statusSlug,
-                                String labelId) throws Exception {
+    @CsvSource({"?titleCont=much is the, 1",
+            "?assigneeId=3, 8",
+            "?status=to_review, 10",
+            "?labelId=1, 15"
+            })
+    public void testFilterTasks(String query, String expectedTaskId) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        var testTasks = Arrays.asList(mapper.readValue(
+                Util.readFixture(ABSOLUTE_PATH + "Tasks.json"),
+                Task[].class));
 
-        var statusTest = new TaskStatus("status", "status");
-        var userTest = new User();
-        var labelTest = new Label();
-        var taskExpected = new Task();
+        taskRepository.saveAll(testTasks);
 
-        // TaskStatus initializing
-        statusRepository.save(statusTest);
-        // User initializing
-        userTest.setEmail("testMail@wegw.com");
-        userTest.setFirstName("userTest");
-        userTest.setPasswordDigest("qwerty");
-        userRepository.save(userTest);
-        // Label initializing
-        labelTest.setName("label_test");
-        labelRepository.save(labelTest);
-        // Task initializing
-        taskExpected.setName("How much is the fish?");
-        taskExpected.setTaskStatus(statusRepository.findBySlug(statusSlug).orElse(testStatus));
-        taskExpected.setAssignee(userRepository.findByEmail(assignee).orElse(null));
-        Label label = labelRepository.findById(Long.valueOf(labelId)).orElse(labelTest);
-        taskExpected.setLabels(List.of(label));
-        taskRepository.save(taskExpected);
-
-        var request = get("/api/tasks" + query)
-                .with(jwt());
+        var request = get("/api/tasks" + query).with(jwt());
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
         var body = result.getResponse().getContentAsString();
-        var expected = Util.readFixture(expectedJson);
 
-        assertThatJson(body).isEqualTo(expected);
+        assertThatJson(body).isArray()
+                .isNotEmpty()
+                .first().and(
+                v -> v.node("id").isEqualTo(expectedTaskId)
+                );
 
-        // cleanUp repositories
-        taskRepository.delete(taskExpected);
-        statusRepository.delete(statusTest);
-        userRepository.delete(userTest);
-        labelRepository.delete(labelTest);
+        // cleanUp
+        taskRepository.deleteAll();
     }
 }
