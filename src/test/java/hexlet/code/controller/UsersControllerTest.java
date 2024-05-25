@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
+import hexlet.code.service.UserService;
 import hexlet.code.util.ModelGenerator;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
@@ -42,6 +44,9 @@ public class UsersControllerTest {
 
     @Autowired
     private ModelGenerator modelGenerator;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ObjectMapper om;
@@ -84,6 +89,12 @@ public class UsersControllerTest {
                 v -> v.node("firstName").isEqualTo(testUser.getFirstName()),
                 v -> v.node("lastName").isEqualTo(testUser.getLastName())
         );
+    }
+
+    @Test
+    public void testNotFoundIdInShowMethod() {
+        final Throwable raisedException = catchThrowable(() -> userService.show(224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test

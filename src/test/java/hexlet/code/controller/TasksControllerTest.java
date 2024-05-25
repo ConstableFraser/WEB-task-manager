@@ -1,5 +1,7 @@
 package hexlet.code.controller;
 
+import hexlet.code.dto.task.TaskUpdateDTO;
+import hexlet.code.service.TaskService;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -52,6 +55,9 @@ public class TasksControllerTest {
 
     @Autowired
     private ModelGenerator modelGenerator;
+
+    @Autowired
+    private TaskService taskService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -104,6 +110,12 @@ public class TasksControllerTest {
                 v -> v.node("content").isEqualTo(testTask.getDescription()),
                 v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId())
         );
+    }
+
+    @Test
+    public void testNotFoundIdInShowMethod() {
+        final Throwable raisedException = catchThrowable(() -> taskService.show(224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -170,6 +182,15 @@ public class TasksControllerTest {
     }
 
     @Test
+    public void testNotFoundIdInUpdatMethod() {
+
+        final Throwable raisedException = catchThrowable(() ->
+                taskService.update(new TaskUpdateDTO(), 224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+
+    @Test
     public void testDelete() throws Exception {
         taskRepository.save(testTask);
 
@@ -180,6 +201,12 @@ public class TasksControllerTest {
                 .andExpect(status().isNoContent());
 
         assertThat(taskRepository.findById(testTask.getId())).isNotPresent();
+    }
+
+    @Test
+    public void testNotFoundIdInDeleteMethod() {
+        final Throwable raisedException = catchThrowable(() -> taskService.show(224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
     }
 
     @ParameterizedTest

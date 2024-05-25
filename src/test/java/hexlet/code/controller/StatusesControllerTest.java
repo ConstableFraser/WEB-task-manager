@@ -1,9 +1,11 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.status.StatusUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.StatusRepository;
+import hexlet.code.service.StatusService;
 import hexlet.code.util.ModelGenerator;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -49,6 +52,9 @@ public class StatusesControllerTest {
     @Autowired
     private ModelGenerator modelGenerator;
 
+    @Autowired
+    private StatusService statusService;
+
     @BeforeEach
     public void setUp() {
         token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
@@ -70,6 +76,12 @@ public class StatusesControllerTest {
                 v -> v.node("name").isEqualTo(testStatus.getName()),
                 v -> v.node("slug").isEqualTo(testStatus.getSlug())
         );
+    }
+
+    @Test
+    public void testNotFoundIdInShowMethod() {
+        final Throwable raisedException = catchThrowable(() -> statusService.show(224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -124,6 +136,12 @@ public class StatusesControllerTest {
     }
 
     @Test
+    public void testNotFoundIdInUpdateMethod() {
+        final Throwable raisedException = catchThrowable(() -> statusService.update(new StatusUpdateDTO(), 224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
     void testDelete() throws Exception {
         var testDeleteStatus = Instancio.of(modelGenerator.getStatusModel())
                 .create();
@@ -139,5 +157,11 @@ public class StatusesControllerTest {
                 .andExpect(status().isNoContent());
 
         assertThat(statusRepository.findById(id)).isNotPresent();
+    }
+
+    @Test
+    public void testNotFoundIdInDeleteMethod() {
+        final Throwable raisedException = catchThrowable(() -> statusService.destroy(224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
     }
 }

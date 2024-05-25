@@ -48,7 +48,8 @@ public class ModelGenerator {
                 .ignore(Select.field(Task::getAssignee))
                 .ignore(Select.field(Task::getTaskStatus))
                 .supply(Select.field(Task::getName), () -> faker.lorem().word())
-                .supply(Select.field(Task::getDescription), () -> faker.gameOfThrones().quote())
+                .supply(Select.field(Task::getDescription), () ->
+                        faker.gameOfThrones().quote().replace("'", ""))
                 .toModel();
 
         labelModel = Instancio.of(Label.class)

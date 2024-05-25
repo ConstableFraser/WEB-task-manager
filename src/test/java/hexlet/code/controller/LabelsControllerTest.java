@@ -1,9 +1,11 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.label.LabelUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
+import hexlet.code.service.LabelService;
 import hexlet.code.util.ModelGenerator;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,7 @@ import java.util.HashMap;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -46,6 +49,10 @@ public class LabelsControllerTest {
 
     @Autowired
     private ModelGenerator modelGenerator;
+
+    @Autowired
+    private LabelService labelService;
+
     @BeforeEach
     public void setUp() {
         token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
@@ -67,6 +74,12 @@ public class LabelsControllerTest {
         assertThatJson(body).and(
                 v -> v.node("name").isEqualTo(testLabel.getName())
         );
+    }
+
+    @Test
+    public void testNotFoundIdInShowMethod() {
+        final Throwable raisedException = catchThrowable(() -> labelService.destroy(224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -119,6 +132,12 @@ public class LabelsControllerTest {
     }
 
     @Test
+    public void testNotFoundIdInUpdateMethod() {
+        final Throwable raisedException = catchThrowable(() -> labelService.update(new LabelUpdateDTO(), 224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
     void testDelete() throws Exception {
         var testDeleteLabel = Instancio.of(modelGenerator.getLabelModel())
                 .create();
@@ -134,5 +153,11 @@ public class LabelsControllerTest {
                 .andExpect(status().isNoContent());
 
         assertThat(labelRepository.findById(id)).isNotPresent();
+    }
+
+    @Test
+    public void testNotFoundIdInDeleteMethod() {
+        final Throwable raisedException = catchThrowable(() -> labelService.destroy(224020L));
+        assertThat(raisedException).isInstanceOf(ResourceNotFoundException.class);
     }
 }

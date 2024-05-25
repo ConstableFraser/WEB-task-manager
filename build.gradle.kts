@@ -62,6 +62,7 @@ tasks.withType<Test> {
 }
 
 tasks.withType<JacocoReport> {
+    sourceDirectories.setFrom(files("src/main/java"))
     reports {
         xml.required.set(true)
         html.required.set(true)
