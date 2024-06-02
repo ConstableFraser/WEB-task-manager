@@ -6,9 +6,10 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/ba36a404f309417eb940/test_coverage)](https://codeclimate.com/github/ConstableFraser/java-project-99/test_coverage)
 
 ## [demo version]
-_[task manager](https://java-task-manager-pxdv.onrender.com)_
-[![video demo](https://img.youtube.com/vi/youtu.be/_4oZd7jARus/0.jpg)](https://youtu.be/_4oZd7jARus)
-[video demo](https://youtu.be/_4oZd7jARus)
+_[task manager on render.com](https://java-task-manager-pxdv.onrender.com)_
+
+[![video demo](https://img.youtube.com/vi/_4oZd7jARus/0.jpg)](https://youtu.be/_4oZd7jARus)
+
 
 ## [useful features]
 The application provide the following features:
